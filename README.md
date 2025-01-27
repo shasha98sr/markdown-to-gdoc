@@ -17,7 +17,7 @@ A Python script that automatically converts markdown meeting notes into well-for
 
 ## Quick Start
 
-1. Open the [Colab Notebook](link-to-your-colab) (add your Colab link here)
+1. Open the Colab Notebook in your colab environment
 2. Run the first cell to install required packages
 3. Run the authentication cell - you'll need to authorize the app
 4. Paste your markdown content into the `markdown_text` variable
