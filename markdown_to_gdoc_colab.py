@@ -1,13 +1,25 @@
-# Markdown to Google Docs Converter - Colab Version
-# Install required packages
-!pip install google-auth-oauthlib google-auth-httplib2 google-api-python-client
+# -*- coding: utf-8 -*-
+"""
+# Markdown to Google Docs Converter
 
-import sys
+This notebook converts markdown meeting notes to a formatted Google Doc.
+"""
+
+# Install required packages (run this cell first)
+try:
+    import google.colab
+    IN_COLAB = True
+except:
+    IN_COLAB = False
+
+if IN_COLAB:
+    !pip install --quiet google-auth-oauthlib google-auth-httplib2 google-api-python-client
+
+import re
 from google.colab import auth
 from google.auth import default
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-import re
 
 class MarkdownToGoogleDocs:
     """Handles conversion of markdown to Google Docs format."""
@@ -171,6 +183,16 @@ class MarkdownToGoogleDocs:
         
         return requests
     
+    def apply_formatting(self, doc_id: str, requests: list):
+        """Apply formatting requests to the document."""
+        try:
+            self.service.documents().batchUpdate(
+                documentId=doc_id,
+                body={'requests': requests}
+            ).execute()
+        except HttpError as error:
+            raise Exception(f"Failed to apply formatting: {error}")
+
     def convert(self, markdown_text: str, title: str = "Converted Meeting Notes") -> str:
         """Convert markdown text to Google Doc."""
         if not self.service:
@@ -184,36 +206,11 @@ class MarkdownToGoogleDocs:
             requests = self.parse_markdown(markdown_text)
             
             # Execute requests
-            self.service.documents().batchUpdate(
-                documentId=doc_id,
-                body={'requests': requests}
-            ).execute()
+            self.apply_formatting(doc_id, requests)
             
             return doc_id
-            
-        except HttpError as error:
-            raise Exception(f"Failed to convert document: {error}")
+        except Exception as e:
+            raise Exception(f"Failed to convert document: {e}")
 
-# Sample markdown text
-markdown_text = """# Product Team Sync - May 15, 2023
-
-## Attendees
-- Sarah Chen (Product Lead)
-- Mike Johnson (Engineering)
-- Anna Smith (Design)
-- David Park (QA)
-
-## Action Items
-- [ ] @sarah: Finalize Q3 roadmap by Friday
-- [ ] @mike: Schedule technical review for payment integration
-- [ ] @anna: Share updated design system documentation
-- [ ] @david: Prepare QA resource allocation proposal
-"""
-
-# Initialize and authenticate
-converter = MarkdownToGoogleDocs()
-converter.authenticate()  # No credentials file needed anymore
-
-# Convert markdown to Google Doc
-doc_id = converter.convert(markdown_text, "Product Team Sync Notes")
-print(f"Created document: https://docs.google.com/document/d/{doc_id}/edit")
+if __name__ == "__main__":
+    print("This script is meant to be imported and used in Google Colab")
