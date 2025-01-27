@@ -5,21 +5,18 @@
 This notebook converts markdown meeting notes to a formatted Google Doc.
 """
 
-# Install required packages (run this cell first)
-try:
-    import google.colab
-    IN_COLAB = True
-except:
-    IN_COLAB = False
-
-if IN_COLAB:
-    !pip install --quiet google-auth-oauthlib google-auth-httplib2 google-api-python-client
-
 import re
 from google.colab import auth
 from google.auth import default
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
+# Check if running in Colab
+try:
+    import google.colab
+    IN_COLAB = True
+except ImportError:
+    IN_COLAB = False
 
 class MarkdownToGoogleDocs:
     """Handles conversion of markdown to Google Docs format."""
